@@ -29,10 +29,26 @@ export default function App() {
   const columns = ["todo", "doing", "done"];
 
   // Add Task
-  // const [adding, setAdding] = useState(false);
   const [adding, setAdding] = useState<{ [key: string]: boolean }>({});
-
+  // Task 내용
   const [text, setText] = useState("");
+  // dark, light 모드
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  useEffect(() => {
+    const storedTheme = localStorage.getItem("theme");
+    setIsDarkMode(storedTheme === "dark");
+  }, []);
+
+  // 다크모드 상태변화
+  useEffect(() => {
+    localStorage.setItem("theme", isDarkMode ? "dark" : "light");
+  }, [isDarkMode]);
+
+  // 다크 모드 토글 함수
+  const toggleDarkMode = () => {
+    setIsDarkMode((prev) => !prev);
+  };
 
   // --- Draggable이 Droppable로 드래그 되었을 때 실행되는 이벤트
   // source: 선택된 Item의 Drop과 index (droppableId: 'todo', index: 1)
@@ -179,129 +195,145 @@ export default function App() {
   };
 
   return (
-    <div className="h-screen w-full flex justify-center items-center border-8 border-indigo-300">
-      <DragDropContext onDragEnd={onDragEnd}>
-        {columns.map((columnId) => (
-          <Droppable key={columnId} droppableId={columnId}>
-            {(provided, snapshot) => (
-              <div className="flex flex-col mx-4 border border-red-500">
-                <h2 className="mb-2 text-xl font-bold">{columnId}</h2>
-                <h2 className="mb-2 text-xl font-bold">
-                  {itemCountInColumn(columnId)}
-                </h2>
-                <div
-                  ref={provided.innerRef}
-                  {...provided.droppableProps}
-                  className="bg-gray-100 p-4 rounded-lg shadow-md min-h-[200px] "
-                  style={{
-                    background: snapshot.isDraggingOver ? "green" : "blue",
-                    minWidth: "7rem",
-                  }}
-                >
-                  {items
-                    .filter((item) => item.column === columnId)
-                    .map((item, index) => (
-                      <Draggable
-                        key={item.id}
-                        draggableId={item.id}
-                        index={index}
-                      >
-                        {(provided, snapshot) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                            className="bg-white p-2 rounded-lg mb-2 shadow"
-                            style={{
-                              ...provided.draggableProps.style,
-                              backgroundColor: snapshot.isDragging
-                                ? "red"
-                                : "white",
-                            }}
+    <div
+      className={`h-screen w-full flex justify-center items-start py-10  
+      ${isDarkMode ? " bg-gray-900 text-white" : " bg-amber-200 text-black"}`}
+    >
+      <div
+        className={`border border-red-900 mr-[10px] cursor-pointer p-[3px] px-[5px] rounded ${
+          isDarkMode ? "bg-white text-black" : "bg-black text-white"
+        }`}
+        onClick={toggleDarkMode}
+      >
+        {isDarkMode ? "Dark" : "Light"}
+      </div>
+      <div className="max-w-[1200px] flex">
+        <DragDropContext onDragEnd={onDragEnd}>
+          {columns.map((columnId) => (
+            <Droppable key={columnId} droppableId={columnId}>
+              {(provided, snapshot) => (
+                <div className="flex flex-col h-full w-72 mx-2">
+                  <div className="flex justify-between items-center ">
+                    <h2 className="mb-2 text-xl font-bold">{columnId}</h2>
+                    <h2 className="mb-2 text-xl font-bold">
+                      {itemCountInColumn(columnId)}
+                    </h2>
+                  </div>
+                  {/* Task 공간 */}
+                  <div
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                    className={`overflow-y-auto overflow-x-clip shadow-md h-full pr-1 pb-2 ${
+                      snapshot.isDraggingOver
+                        ? isDarkMode
+                          ? "bg-neutral-700/80"
+                          : "bg-amber-300/80"
+                        : ""
+                    }`}
+                  >
+                    {items
+                      .filter((item) => item.column === columnId)
+                      .map((item, index) => (
+                        <Draggable
+                          key={item.id}
+                          draggableId={item.id}
+                          index={index}
+                        >
+                          {(provided, snapshot) => (
+                            // Task
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              className={`rounded px-2 py-3 mb-1 text-black border border-neutral-400  hover:bg-gray-300/60 transition
+                              ${
+                                snapshot.isDragging
+                                  ? "bg-gray-300/60"
+                                  : "bg-neutral-50"
+                              }`}
+                            >
+                              {item.content}
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
+                    {provided.placeholder}
+                    {adding[columnId] ? (
+                      // Add Task
+                      <form id={columnId} onSubmit={onClickAddTask}>
+                        <textarea
+                          onChange={(e) => setText(e.target.value)}
+                          autoFocus
+                          placeholder="Add new task..."
+                          className="w-full h-[100px] rounded border border-neutral-400 bg-slate-50 p-3 text-sm text-black placeholder-stone-400 focus:outline-0"
+                        />
+                        <div className="mt-1.5 flex items-center justify-end gap-1.5">
+                          <button
+                            onClick={() => toggleAdding(columnId)}
+                            className="px-3 py-1.5 text-xs text-neutral-400 transition-colors hover:text-neutral-500"
                           >
-                            {item.content}
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
-                  {provided.placeholder}
-                  {adding[columnId] ? (
-                    <form id={columnId} onSubmit={onClickAddTask}>
-                      <textarea
-                        onChange={(e) => setText(e.target.value)}
-                        autoFocus
-                        placeholder="Add new task..."
-                        className="w-full rounded border border-violet-400 bg-violet-400/20 p-3 text-sm text-neutral-50 placeholder-violet-300 focus:outline-0"
-                      />
-                      <div className="mt-1.5 flex items-center justify-end gap-1.5">
-                        <button
-                          onClick={() => toggleAdding(columnId)}
-                          className="px-3 py-1.5 text-xs text-neutral-400 transition-colors hover:text-neutral-50"
-                        >
-                          Close
-                        </button>
-                        <button
-                          type="submit"
-                          className="flex items-center gap-1.5 rounded bg-neutral-50 px-3 py-1.5 text-xs text-neutral-950 transition-colors hover:bg-neutral-300"
-                        >
-                          <span>Add</span>
-                          <FiPlus />
-                        </button>
-                      </div>
-                    </form>
+                            Close
+                          </button>
+                          <button
+                            type="submit"
+                            className="flex items-center gap-1.5 rounded bg-neutral-50 px-3 py-1.5 text-xs text-neutral-950 transition-colors hover:bg-neutral-300"
+                          >
+                            <span>Add</span>
+                            <FiPlus />
+                          </button>
+                        </div>
+                      </form>
+                    ) : (
+                      <button
+                        onClick={() => toggleAdding(columnId)}
+                        className="flex w-full items-center gap-1.5 px-3 py-1.5 text-xs text-neutral-400 transition-colors hover:text-neutral-500"
+                      >
+                        <span>Add card</span>
+                        <FiPlus />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+            </Droppable>
+          ))}
+
+          {/* 쓰레기 통 */}
+          <Droppable key="trash" droppableId="trash">
+            {(provided, snapshot) => (
+              <div
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+                className={`relative flex justify-center items-center h-56 w-72 shrink-0 rounded border text-3xl ${
+                  snapshot.isDraggingOver
+                    ? "border-red-800 bg-red-800/20 text-red-500"
+                    : "border-neutral-500 bg-neutral-500/20 text-neutral-500"
+                }`}
+              >
+                <Draggable key={"trash"} draggableId={"trash"} index={0}>
+                  {(provided) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}
+                      className="w-[4rem] flex absolute left-0"
+                    ></div>
+                  )}
+                </Draggable>
+                {provided.placeholder}
+
+                <div className="absolute">
+                  {snapshot.isDraggingOver ? (
+                    <FaFire className="animate-bounce" />
                   ) : (
-                    <button
-                      onClick={() => toggleAdding(columnId)}
-                      className="flex w-full items-center gap-1.5 px-3 py-1.5 text-xs text-neutral-400 transition-colors hover:text-neutral-50"
-                    >
-                      <span>Add card</span>
-                      <FiPlus />
-                    </button>
+                    <FiTrash />
                   )}
                 </div>
               </div>
             )}
           </Droppable>
-        ))}
-
-        {/* 쓰레기 통 */}
-        <Droppable key="trash" droppableId="trash">
-          {(provided, snapshot) => (
-            <div
-              ref={provided.innerRef}
-              {...provided.droppableProps}
-              className={`flex justify-center items-center h-56 w-56 shrink-0 rounded border text-3xl ${
-                snapshot.isDraggingOver ? "bg-red-800/20" : "bg-neutral-500/20"
-              }`}
-            >
-              <Draggable key={"trash"} draggableId={"trash"} index={0}>
-                {(provided) => (
-                  <div
-                    ref={provided.innerRef}
-                    // {...provided.draggableProps}
-                    {...provided.dragHandleProps}
-                    style={{
-                      border: "1px solid red",
-                      width: "4rem",
-                      display: "flex",
-                      flexDirection: "column",
-                    }}
-                  ></div>
-                )}
-              </Draggable>
-              {provided.placeholder}
-
-              <div style={{ position: "absolute" }}>
-                {snapshot.isDraggingOver ? (
-                  <FaFire className="animate-bounce" />
-                ) : (
-                  <FiTrash />
-                )}
-              </div>
-            </div>
-          )}
-        </Droppable>
-      </DragDropContext>
+        </DragDropContext>
+      </div>
     </div>
   );
 }
