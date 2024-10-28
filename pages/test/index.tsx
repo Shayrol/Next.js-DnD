@@ -1,3 +1,5 @@
+// react-beautiful-dnd 라이브러리 사용으로 드래그 앤 드랍 구현하기
+
 import { FormEvent, useEffect, useState } from "react";
 import {
   DragDropContext,
@@ -337,58 +339,3 @@ export default function App() {
     </div>
   );
 }
-
-// 이동된 updatedItems 함수 이해하고 넘어가기
-// 전체 데이터를 .map을 통해 순회하고 해당 item.column과 이동된 column과 같으면 shift()하는데
-// 이해가 안감..
-
-// const updatedItems: Item[] = _items.map((item) => {
-//   if (item.column === destinationColumn) {
-//     return filteredDestinationItems.shift()!; // 이동된 아이템 업데이트
-//   }
-//   return item; // 나머지는 그대로 유지
-// });
-
-// 여기서 copy한 _items를 map 함수로 순회한다.
-// 전체 column을 통해 드랍된 공간의 column과 같은지 비교를 하는데
-// 같으면
-// splice를 통해 해당 index 위치에 추가된 즉 같은 column의 추가된 상태의
-// filteredDestinationItems을 shift()로 첫 번째 요소를 제거를 하고 반환을 하는데
-// updatedItems에 반환한다.
-
-// 다르면
-// 해당 값을 그냥 그대로 updatedItems에 반화한다.
-
-// 이렇게 순회하면서 이동된 그리고 해당 index에 추가된 Item의 배열을 새로 생성을 한다.
-
-// 즉 이과정을 거쳐야 다른 컬럼에 이동을 하고 원하는 위치(index)에 이동을 할 수 있다.
-// 그전에 id로만 비교을 했을 때는 위치까지 이동이 안되었음. (data 선언된 객체 순으로 강제 이동됨)
-
-// shift를 굳이 사용한 이유
-// filteredDestinationItems가 배열이여서 shift를 사용하지 않으면 배열 안 배열로 이동을 하게됨
-// 그래서 순회하면서 filteredDestinationItems의 배열의 요소를 제거 및 반환을 하는
-// shift() 함수를 사용함
-
-// 쓰레기 통 삭제 완
-// 문제점
-// 1. 비어있는 column에 Task 추가 시 약간의 위치 이동이 어설픔
-// 2. 쓰레기 통에 Task Drop 하면 바로 사라지는게 아닌 왼쪽 위로 이동 후 사라짐
-
-// 첫 번째 문제는 column의 크기 즉 Droppable의 최소 너비를 주면 해결될 듯 하다.
-
-// 두 번째 문제는 Draggable이 없어 생긴 문제인지 잘 모름
-// 일단 provided.placeholder의 인한 공간 생성으로 생긴 문제
-
-//
-// 쓰레기 통 Task Drop 후 가운데로 이동하게 한 후 사라지게 했음
-// 해당 자리 또는 바로 사라지게 하고 싶었으나 Column을 사용하고 있고 이에 대한 애니메이션
-// 효과가 일어남 - transition을 none을 해줬으나 해당 Task는 사라지지 않았음
-
-// Add를 추가해 각각의 task에 추가할 수 있게 했음
-// css 스타일 완성하면 끝
-// 추가로 하고 싶은 기능은 각각의 Add가 아닌 오른쪽 상단에 추가를 클릭을 하면
-// column, title를 추가하면 해당 Column에 Task가 추가 되도록 하기
-// 앱 반응형으로 구현하기
-//
-// column의 이름 및 추가 기능 만들기
-// columns의 배열을 추가하면 해결될 듯?
