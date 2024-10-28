@@ -1,41 +1,39 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+## 순수 JavaScript 사용과 react-beautiful-dnd 라이브러리 사용 각각 Drag and Drop 구현하기
+> **순수 JavaScript 사용으로 Drag and Drop 구현**
+- onDrop, onDragOver, onDragLeave, onDragStart 같이 HTML5의 드래그 앤 드롭 API를 통해 Drag and Drop을 구현 했습니다.
 
-## Getting Started
+![2024-10-2814-41-48-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/52883cbd-7878-4e17-acfb-2f7bde0fa69a) <br>
+영상에서는 드래그시 고스트 현상은 찍히지 않았지만 문제없이 되었습니다.. <br>
 
-좋다.
-First, run the development server:
-
+일부 사용 코드
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+<motion.div
+  layout
+  layoutId={props.id}
+  draggable={true} // 드래그 가능하게 하기
+  onDragStart={(e) =>
+    props.handleDragStart(e, {
+      title: props.title,
+      id: props.id,
+      column: props.column,
+    })
+  }
+  className="cursor-grab rounded border border-neutral-700 bg-neutral-800 p-3"
+>
+  <p className="text-sm text-neutral-100">{props.title}</p>
+</motion.div>
 ```
+onDragStart는 드래그 시 실행되는 함수 입니다. <br>
+요소에 사용된 motion은 dnd 시 부드러운 연출을 위한 라이브러리를 사용한 것이며 속성으로 layout, layoutId를 사용했습니다.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+> **react-beautiful-dnd**
+- react-beautiful-dnd 라이브러리 사용으로 드래그 앤 드롭을 구현했습니다.
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+![2024-10-2815-38-32-ezgif com-video-to-gif-converter](https://github.com/user-attachments/assets/ce0c9207-e189-4d7c-af0b-e8d80f823508) <br>
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## 마무리
+순수 JavaScript 구현은 영상을 참고했습니다.
+참고 링크: https://www.youtube.com/watch?v=O5lZqqy7VQE
